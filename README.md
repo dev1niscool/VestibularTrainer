@@ -10,7 +10,8 @@ A quiet, browser-based guide for clinician-directed VOR X1 and VOR X2 gaze stabi
 - VOR X2: a smoothly moving letter target, with instructions to move the head in the opposite direction.
 - Combined session: both exercise types, horizontal first, then vertical.
 - Adjustable set duration, repetitions, rest, target size, and X2 display speed/travel.
-- Preparation and starting countdowns, extendable rest, and an explicit readiness check between sets.
+- A compact settings screen with no confirmation checkbox; X2 target controls are available under a collapsed section.
+- Five-second instructions before the first set and each movement change, clear head-direction cues during exercise, extendable rest, and an explicit readiness check between sets.
 - Pause/resume, a three-second countdown when resuming an active set, automatic pause when the tab is hidden or the browser stalls, session completion, restart, and return home.
 - Keyboard operation, responsive layouts, reduced decorative motion, linked research, and safety information.
 

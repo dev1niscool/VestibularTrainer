@@ -3,8 +3,7 @@ import assert from 'node:assert/strict';
 import { DEFAULTS, Session, createPlan, normalizeSettings, formatTime } from '../session.js';
 
 function reachWork(session) {
-  if (session.phase === 'instruction') session.advance(10);
-  assert.equal(session.phase, 'ready');
+  assert.ok(['instruction', 'ready'].includes(session.phase));
   session.advance(5);
   assert.equal(session.phase, 'work');
 }
@@ -40,13 +39,14 @@ test('form strings are accepted and unsupported settings cannot create invalid t
   assert.throws(() => createPlan('unknown'), /Unknown practice mode/);
 });
 
-test('preparation and countdown time never count as active practice', () => {
+test('five seconds of initial instructions lead directly to work without counting as active practice', () => {
   const session = new Session('x1');
-  session.advance(9);
+  assert.equal(session.remaining, 5);
+  session.advance(4);
   assert.equal(session.phase, 'instruction');
+  assert.equal(session.remaining, 1);
+  assert.equal(session.activeSeconds, 0);
   session.advance(1);
-  assert.equal(session.phase, 'ready');
-  session.advance(5);
   assert.equal(session.phase, 'work');
   assert.equal(session.activeSeconds, 0);
   assert.equal(session.remaining, 30);
@@ -101,6 +101,14 @@ test('rest can be extended and never automatically starts the next set', () => {
   assert.equal(session.index, 1);
   assert.equal(session.phase, 'ready');
   assert.equal(session.remaining, 5);
+  session.advance(4);
+  assert.equal(session.phase, 'ready');
+  assert.equal(session.activeSeconds, 30);
+  session.advance(1);
+  assert.equal(session.phase, 'work');
+  assert.equal(session.remaining, 30);
+  assert.equal(session.activeSeconds, 30);
+  assert.equal(session.workElapsed, 0);
 });
 
 test('pausing a rest preserves the chosen rest duration', () => {
@@ -117,28 +125,36 @@ test('pausing a rest preserves the chosen rest duration', () => {
   assert.equal(session.activeSeconds, 30);
 });
 
-test('an exercise or direction change introduces the next movement before its countdown', () => {
-  const session = new Session('combined', { sets: 1 });
-  finishSet(session);
-  session.advance(session.settings.rest);
-  session.continueAfterRest();
-  assert.equal(session.current.exercise, 'x2');
-  assert.equal(session.current.direction, 'horizontal');
-  assert.equal(session.phase, 'instruction');
-  finishSet(session);
-  session.advance(session.settings.rest);
-  session.continueAfterRest();
-  assert.equal(session.current.exercise, 'x1');
-  assert.equal(session.current.direction, 'vertical');
-  assert.equal(session.phase, 'instruction');
+test('exercise and direction changes each get exactly five seconds of instructions before work', () => {
+  for (const [mode, exercise, direction] of [
+    ['combined', 'x2', 'horizontal'],
+    ['x1', 'x1', 'vertical'],
+  ]) {
+    const session = new Session(mode, { sets: 1 });
+    finishSet(session);
+    session.advance(session.settings.rest);
+    session.continueAfterRest();
+    assert.equal(session.current.exercise, exercise);
+    assert.equal(session.current.direction, direction);
+    assert.equal(session.phase, 'instruction');
+    assert.equal(session.remaining, 5);
+    session.advance(4);
+    assert.equal(session.phase, 'instruction');
+    assert.equal(session.activeSeconds, 30);
+    session.advance(1);
+    assert.equal(session.phase, 'work');
+    assert.equal(session.remaining, 30);
+    assert.equal(session.activeSeconds, 30);
+    assert.equal(session.workElapsed, 0);
+  }
 });
 
 test('a huge time step cannot silently run through multiple sets', () => {
   const session = new Session('combined');
   session.advance(9999);
-  assert.equal(session.phase, 'ready');
+  assert.equal(session.phase, 'work');
   assert.equal(session.completedSets, 0);
-  session.advance(5);
+  assert.equal(session.activeSeconds, 0);
   session.advance(9999);
   assert.equal(session.phase, 'rest');
   assert.equal(session.activeSeconds, 30);

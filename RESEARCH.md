@@ -27,7 +27,7 @@ The initial settings are **30 seconds per set, two sets per direction, and 30 se
 
 This arrangement is an adjustable product example, not a regimen established by the guideline or a trial. The interface does not call Combined a universally recommended session or infer that everyone should repeat it a certain number of times daily. A user’s clinician may recommend shorter or longer bouts, a different frequency, only X1, or an entirely different program.
 
-Rest can be extended in 30-second increments. At the end of the countdown the user must choose to continue; the target does not automatically restart. This implements symptom-dependent recovery without implying that 30 seconds is a medically sufficient rest for every user. Instructions are also readable before beginning.
+Rest can be extended in 30-second increments. At the end of the countdown the user must choose to continue; the target does not automatically restart. This implements symptom-dependent recovery without implying that 30 seconds is a medically sufficient rest for every user. Brief instructions appear for five seconds before the first set and each change of movement. Direction cues remain visible during exercise, and the research panel holds the full setup and safety guidance.
 
 ## Mechanics, target, and viewing distance
 

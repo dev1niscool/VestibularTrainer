@@ -32,7 +32,7 @@ export class Session {
     this.plan = createPlan(mode, this.settings);
     this.index = 0;
     this.phase = 'instruction';
-    this.remaining = 10;
+    this.remaining = 5;
     this.paused = false;
     this.completedSets = 0;
     this.activeSeconds = 0;
@@ -59,7 +59,7 @@ export class Session {
     this.index++;
     const changed = previous.exercise !== this.current.exercise || previous.direction !== this.current.direction;
     this.phase = changed ? 'instruction' : 'ready';
-    this.remaining = changed ? 10 : 5;
+    this.remaining = 5;
     this.paused = false;
   }
   advance(seconds) {
@@ -73,9 +73,7 @@ export class Session {
     if (this.remaining <= 0) this.transition();
   }
   transition() {
-    if (this.phase === 'instruction') {
-      this.phase = 'ready'; this.remaining = 5;
-    } else if (this.phase === 'ready' || this.phase === 'resume') {
+    if (this.phase === 'instruction' || this.phase === 'ready' || this.phase === 'resume') {
       const resuming = this.phase === 'resume';
       this.phase = 'work';
       this.remaining = resuming ? this.resumeRemaining : this.current.duration;

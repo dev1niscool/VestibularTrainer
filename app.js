@@ -1,4 +1,4 @@
-import { DEFAULTS, normalizeSettings, createPlan, formatTime, Session } from './session.js';
+import { DEFAULTS, normalizeSettings, formatTime, Session } from './session.js';
 import { researchHTML } from './research.js';
 
 const $ = (selector) => document.querySelector(selector);
@@ -33,54 +33,26 @@ function readSettings() {
   const form = $('#setup-form');
   if (form) settings = normalizeSettings(Object.fromEntries(new FormData(form)));
 }
-function planSummary() {
-  const plan = createPlan(mode, settings);
-  $('#summary-active').textContent = formatTime(plan.length * settings.duration);
-  $('#summary-sets').textContent = plan.length;
-  $('#summary-rest').textContent = `${settings.rest}s`;
-  $('#plan-preview').textContent = mode === 'combined'
-    ? `${settings.sets} × X1 + ${settings.sets} × X2 horizontally, then the same vertically. ${settings.duration} seconds per set.`
-    : `${settings.sets} horizontal sets, then ${settings.sets} vertical sets. ${settings.duration} seconds per set.`;
-}
 function showSetup(selected = mode) {
   stopLoop(); session = null; mode = selected; endRequested = false;
   const includesX2 = mode !== 'x1';
   views.setup.innerHTML = `
     <button class="back-button text-button" data-action="home">← All exercises</button>
-    <div class="setup-header"><span class="eyebrow">A LITTLE PREPARATION</span><h1 id="setup-title">${labels[mode]}<span class="muted-period">.</span></h1><p>${includesX2 ? 'A moving-target progression, guided by your clinician.' : 'A still target. Small head movements. A clear focus.'}</p></div>
+    <div class="setup-header"><h1 id="setup-title">${labels[mode]}<span class="muted-period">.</span></h1></div>
     <form id="setup-form" class="setup-layout">
-      <div class="setup-main">
-        <div class="setup-steps">
-          <div class="setup-step"><span class="step-number">01</span><div><h3>Make yourself comfortable</h3><p>Sit in a stable chair. Keep the screen still at eye level, about 3 feet (1 metre) away, or at the distance your clinician prescribed. Wear your usual glasses.</p></div></div>
-          <div class="setup-step"><span class="step-number">02</span><div><h3>Keep the letter clear</h3><p>${mode === 'x1' ? 'Look at the E in the target. Turn your head gently side to side, then later nod up and down, without moving your body. The target stays still.' : mode === 'x2' ? 'Keep looking at the E. Move your head in the opposite direction to the moving target: target right, head left; target up, head down. Do not just follow it with your eyes.' : 'For X1, move your head while the E stays still. For X2, keep the moving E clear while your head moves in the opposite direction. We’ll explain each change.'} Use small, smooth movements within a comfortable neck range.</p></div></div>
-          <div class="setup-step"><span class="step-number">03</span><div><h3>Let comfort set the pace</h3><p>${mode === 'x1' ? 'Use the head speed your clinician prescribed, keeping the E in focus.' : 'Match the target only at a pace that keeps the E clear. Adjust its speed and travel below before starting.'} If the E blurs, slow down or pause. Rest until symptoms settle before continuing.</p></div></div>
-        </div>
-        ${includesX2 ? '<div class="x2-note"><strong>X2 is a progression.</strong> Use it only when a vestibular clinician has recommended it. This screen cannot measure your head movement or verify technique.</div>' : ''}
-        <div class="safety-note"><strong>Listen to your body.</strong> Mild, brief dizziness can occur. Stop for neck pain, severe symptoms, or symptoms that do not settle. Contact your clinician if symptoms persist more than 20 minutes. <button type="button" class="inline-link" data-action="info">Read safety guidance</button></div>
+      <div class="settings-grid">
+        <div class="field"><label for="duration">Time per set</label><select id="duration" name="duration">${optionList([15, 30, 45, 60], settings.duration, ' seconds')}</select></div>
+        <div class="field"><label for="sets">Sets per direction${mode === 'combined' ? ', per type' : ''}</label><select id="sets" name="sets">${optionList([1, 2, 3, 4], settings.sets)}</select></div>
+        <div class="field"><label for="rest">Rest between sets</label><select id="rest" name="rest">${optionList([15, 30, 45, 60], settings.rest, ' seconds')}</select></div>
+        <div class="field"><label for="size">Target size</label><select id="size" name="size">${[36,48,64].map((v,i)=>`<option value="${v}" ${v === settings.size ? 'selected' : ''}>${['Small','Medium','Large'][i]}</option>`).join('')}</select></div>
       </div>
-      <div class="settings-card"><div class="settings-heading"><span class="eyebrow">MAKE IT YOURS</span><h2>Your session</h2></div>
-        <p class="settings-description">Example settings. Match these to your clinician’s plan.</p>
-        <div class="settings-grid">
-          <div class="field"><label for="duration">Time per set</label><select id="duration" name="duration">${optionList([15, 30, 45, 60], settings.duration, ' seconds')}</select></div>
-          <div class="field"><label for="sets">Sets per direction${mode === 'combined' ? ', per type' : ''}</label><select id="sets" name="sets">${optionList([1, 2, 3, 4], settings.sets)}</select></div>
-          <div class="field"><label for="rest">Rest between sets</label><select id="rest" name="rest">${optionList([15, 30, 45, 60], settings.rest, ' seconds')}</select></div>
-          <div class="field"><label for="size">Target size</label><select id="size" name="size">${[36,48,64].map((v,i)=>`<option value="${v}" ${v === settings.size ? 'selected' : ''}>${['Small','Medium','Large'][i]}</option>`).join('')}</select></div>
-        </div>
-        ${includesX2 ? `<details class="advanced-settings" open><summary>Moving target settings</summary><div class="settings-grid"><div class="field"><label for="cycle">One full back-and-forth</label><select id="cycle" name="cycle">${optionList([3,4,6,8], settings.cycle, ' seconds')}</select></div><div class="field"><label for="travel">Travel from centre</label><select id="travel" name="travel">${optionList([30,60,90], settings.travel, ' screen pixels')}</select></div></div><p>Display settings, not a measured head speed or clinical prescription. Physical travel varies by screen and zoom. Target motion is essential to X2.</p></details>` : ''}
-        <div class="session-summary"><div class="summary-stat"><strong id="summary-active"></strong><span>active time</span></div><div class="summary-stat"><strong id="summary-sets"></strong><span>total sets</span></div><div class="summary-stat"><strong id="summary-rest"></strong><span>rest minimum</span></div></div>
-        <p class="plan-preview" id="plan-preview"></p>
-        <p class="rest-note">Breaks and instructions are extra. Each break waits for you to continue.</p>
-        <label class="confirmation"><input type="checkbox" id="clinician-confirmation" required><span>A clinician has recommended ${includesX2 ? 'these exercises, including X2,' : 'this exercise'} for me.</span></label>
-        <button class="primary-button start-button" type="submit">Begin session <span aria-hidden="true">→</span></button>
-      </div>
-    </form>
-    <p class="setup-bottom-note">There is no single research-established X1/X2 set split. <button class="inline-link" data-action="info">See the evidence</button></p>`;
-  planSummary();
+      <button class="primary-button start-button" type="submit">Begin session <span aria-hidden="true">→</span></button>
+      ${includesX2 ? `<details class="advanced-settings"><summary>Moving target settings</summary><div class="settings-grid"><div class="field"><label for="cycle">One full back-and-forth</label><select id="cycle" name="cycle">${optionList([3,4,6,8], settings.cycle, ' seconds')}</select></div><div class="field"><label for="travel">Travel from centre</label><select id="travel" name="travel">${optionList([30,60,90], settings.travel, ' screen pixels')}</select></div></div></details>` : ''}
+    </form>`;
   showView('setup');
-  $('#setup-form').addEventListener('change', () => { readSettings(); planSummary(); });
+  $('#setup-form').addEventListener('change', readSettings);
   $('#setup-form').addEventListener('submit', (event) => {
     event.preventDefault();
-    if (!$('#clinician-confirmation').checked) return;
     readSettings();
     startSession();
   });
@@ -88,10 +60,10 @@ function showSetup(selected = mode) {
 
 function instructions(set) {
   const horizontal = set.direction === 'horizontal';
-  const direction = horizontal ? 'side to side' : 'up and down';
-  if (set.exercise === 'x1') return `Keep the E clear and still. Move your head ${direction} with small, smooth ${horizontal ? 'turns' : 'nods'}. Keep your body still.`;
-  return `Keep the moving E clear. Move your head in the opposite direction: ${horizontal ? 'target right → head left; target left → head right' : 'target up → head down; target down → head up'}. Keep movements small.`;
+  if (set.exercise === 'x1') return `Keep the E clear. Gently ${horizontal ? 'turn your head side to side' : 'nod your head up and down'}.`;
+  return `Keep the E clear. Move your head opposite to the target: ${horizontal ? 'target right, head left' : 'target up, head down'}.`;
 }
+
 function startSession() {
   session = new Session(mode, settings); renderedKey = ''; endRequested = false;
   views.session.innerHTML = `<div class="session-top"><div class="session-label"><h1 id="session-title">${labels[mode]}</h1></div><div class="session-actions"><button class="text-button" data-action="fullscreen" id="fullscreen-button">Expand view</button><button class="text-button" data-action="end">End session ×</button></div></div><div class="session-progress" role="progressbar" aria-label="Exercise time completed" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span></span></div><div class="session-stage" id="session-stage"></div><div id="session-bottom" class="session-bottom"></div><div id="session-controls" class="session-controls"></div>`;
@@ -114,7 +86,7 @@ function phaseMarkup() {
   const axis = set.direction === 'horizontal' ? 'Side to side' : 'Up and down';
   if (endRequested) return `<div class="phase-content paused-card"><span class="phase-eyebrow">TAKE THE TIME YOU NEED</span><h2>Finish here?</h2><p class="phase-copy">You can end your practice at any time.</p><div class="button-row"><button class="primary-button" data-action="confirm-end">End &amp; return home</button><button class="secondary-button" data-action="cancel-end">Keep practicing</button></div></div>`;
   if (session.paused) return `<div class="phase-content paused-card"><span class="phase-icon" aria-hidden="true">∥</span><span class="phase-eyebrow">NO RUSH</span><h2>Take a moment.</h2><p class="phase-copy">Your session is paused. Continue only when you’re comfortable and symptoms have settled.</p><button class="primary-button" data-action="pause">Resume session →</button></div>`;
-  if (session.phase === 'instruction') return `<div class="phase-content"><span class="phase-icon" aria-hidden="true">${set.direction === 'horizontal' ? '↔' : '↕'}</span><span class="phase-eyebrow">${session.index > 0 ? 'UP NEXT' : 'LET’S BEGIN'} · ${labels[set.exercise]} · ${set.direction.toUpperCase()}</span><h2>${axis}.</h2><p class="phase-copy">${instructions(set)}</p><p class="preparation-note">Sit about 3 feet (1 metre) from the screen. Keep the E at eye level.</p><span class="countdown-label">Get ready in <span data-timer></span>s</span></div>`;
+  if (session.phase === 'instruction') return `<div class="phase-content"><span class="phase-icon" aria-hidden="true">${set.direction === 'horizontal' ? '↔' : '↕'}</span><span class="phase-eyebrow">${session.index > 0 ? 'UP NEXT' : 'LET’S BEGIN'} · ${labels[set.exercise]} · ${set.direction.toUpperCase()}</span><h2>${axis}.</h2><p class="phase-copy">${instructions(set)}</p><p class="preparation-note">Screen at eye level · about 3 feet (1 metre) away.</p><span class="countdown-label">Starting in <span data-timer></span>s</span></div>`;
   if (session.phase === 'ready' || session.phase === 'resume') return `<div class="phase-content"><span class="phase-eyebrow">${session.phase === 'resume' ? 'EASE BACK IN' : `${labels[set.exercise]} · ${set.direction.toUpperCase()}`}</span><h2 class="ready-title">Find your focus.</h2><div class="countdown" data-timer></div><p class="phase-copy">${set.exercise === 'x1' ? 'Eyes on the E. Your head moves; the target stays still.' : 'Eyes on the E. Your head moves opposite to the target.'}</p></div>`;
   if (session.phase === 'work') return `<div class="target-field" aria-label="Exercise target"><div class="gaze-target" id="gaze-target" style="--target-size:${settings.size}px"><span>E</span></div></div>`;
   if (session.phase === 'rest' || session.phase === 'recovery') return `<div class="phase-content rest-card"><span class="phase-icon rest-icon" aria-hidden="true">⌁</span><span class="phase-eyebrow">SET ${session.completedSets} COMPLETE</span><h2>A little breathing room.</h2><p class="phase-copy">Let your head and eyes rest. Wait for symptoms to settle.</p>${session.phase === 'rest' ? '<div class="countdown" data-timer></div><span class="countdown-label">seconds of rest · take longer if you need</span><div class="rest-actions"><button class="secondary-button" data-action="extend">+ 30 seconds</button></div>' : '<p class="recovery-ready">The timer is done. There’s no rush.</p><button class="primary-button" data-action="continue">I’m ready to continue →</button>'}<p class="up-next">Next: ${labels[next.exercise]} · ${next.direction}${next.direction !== set.direction ? ' · Now moving up and down' : ''}</p></div>`;
@@ -131,12 +103,13 @@ function renderSession() {
     $('#session-stage').innerHTML = phaseMarkup();
     $('#session-stage').className = `session-stage phase-${session.phase}${session.paused ? ' is-paused' : ''}`;
     const complete = session.phase === 'complete';
-    $('#session-bottom').hidden = complete || endRequested;
+    $('#session-bottom').hidden = complete || endRequested || ['instruction', 'ready'].includes(session.phase);
     $('#session-controls').hidden = complete || endRequested;
     $('.session-actions').hidden = complete;
     const resting = session.paused || ['rest', 'recovery'].includes(session.phase);
-    const cue = resting ? 'Rest your head and eyes. Continue only when symptoms settle.' : session.current.exercise === 'x1' ? `Keep the E clear. Move your head ${session.current.direction === 'horizontal' ? 'left and right' : 'up and down'}.` : 'Keep the E clear. Move your head opposite to the target.';
-    $('#session-bottom').innerHTML = `<div class="session-instruction"><span class="eyebrow">${labels[session.current.exercise]} · ${session.current.direction.toUpperCase()} · SET ${session.index + 1} OF ${session.plan.length}</span><p>${cue}</p></div><div class="session-timer"><span class="time" id="work-time"></span><span class="time-label">${session.phase === 'work' || session.phase === 'resume' ? 'left in this set' : 'per set'}</span></div>`;
+    const cue = resting ? 'Rest your head and eyes' : `Move your head ${session.current.direction === 'horizontal' ? 'side to side' : 'up and down'}`;
+    const cueDetail = resting ? 'Continue when symptoms settle.' : session.current.exercise === 'x1' ? 'Keep your eyes on the E.' : 'Move opposite to the target. Keep the E clear.';
+    $('#session-bottom').innerHTML = `<div class="session-instruction"><span class="eyebrow">${labels[session.current.exercise]} · ${session.current.direction.toUpperCase()} · SET ${session.index + 1} OF ${session.plan.length}</span><strong id="movement-cue">${cue}</strong><p>${cueDetail}</p></div><div class="session-timer"><span class="time" id="work-time"></span><span class="time-label">${session.phase === 'work' || session.phase === 'resume' ? 'left in this set' : 'per set'}</span></div>`;
     $('#session-controls').innerHTML = `<button class="secondary-button pause-button" data-action="pause" ${session.phase === 'recovery' ? 'hidden' : ''}>${session.paused ? 'Resume session' : 'Pause session'}</button><span class="keyboard-hint">Space to pause · Esc to stop</span>`;
     const message = session.paused ? 'Session paused.' : session.phase === 'work' ? `${labels[session.current.exercise]}, ${session.current.direction}. Start set ${session.index + 1}. ${instructions(session.current)}` : session.phase === 'rest' ? 'Set complete. Rest until symptoms settle.' : session.phase === 'recovery' ? 'Rest timer complete. Continue when ready.' : complete ? 'Session complete.' : `${session.phase === 'instruction' ? 'Next exercise' : 'Get ready'}: ${labels[session.current.exercise]}, ${session.current.direction}.`;
     announce(message);
