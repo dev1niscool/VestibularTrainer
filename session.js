@@ -53,6 +53,12 @@ export class Session {
     }
   }
   extendRest() { if (this.phase === 'rest') this.remaining += 30; }
+  skipRest() {
+    if (this.phase !== 'rest' || this.paused) return;
+    this.phase = 'recovery';
+    this.remaining = 0;
+    this.continueAfterRest();
+  }
   continueAfterRest() {
     if (this.phase !== 'recovery') return;
     const previous = this.current;

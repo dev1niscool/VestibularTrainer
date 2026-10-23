@@ -90,7 +90,7 @@ test('rest can be extended and never automatically starts the next set', () => {
   session.extendRest();
   assert.equal(session.remaining, 50);
   session.continueAfterRest();
-  assert.equal(session.phase, 'rest', 'the minimum rest cannot be skipped');
+  assert.equal(session.phase, 'rest', 'continue waits for the rest timer to finish');
   session.advance(50);
   assert.equal(session.phase, 'recovery');
   session.advance(3600);
@@ -123,6 +123,91 @@ test('pausing a rest preserves the chosen rest duration', () => {
   session.advance(43);
   assert.equal(session.phase, 'recovery');
   assert.equal(session.activeSeconds, 30);
+});
+
+test('skipping a break starts the next repeated set countdown without skipping exercise time', () => {
+  const session = new Session('x1');
+  finishSet(session);
+  session.advance(7);
+  session.extendRest();
+  assert.equal(session.remaining, 53);
+  session.skipRest();
+  assert.equal(session.index, 1);
+  assert.equal(session.current.repetition, 2);
+  assert.equal(session.current.direction, 'horizontal');
+  assert.equal(session.phase, 'ready');
+  assert.equal(session.remaining, 5);
+  assert.equal(session.completedSets, 1);
+  assert.equal(session.activeSeconds, 30);
+  session.advance(5);
+  assert.equal(session.phase, 'work');
+  assert.equal(session.remaining, 30);
+  assert.equal(session.workElapsed, 0);
+  assert.equal(session.activeSeconds, 30);
+  session.advance(30);
+  assert.equal(session.completedSets, 2);
+  assert.equal(session.activeSeconds, 60);
+});
+
+test('skipping a break retains five-second instructions when exercise or direction changes', () => {
+  for (const [mode, exercise, direction] of [
+    ['combined', 'x2', 'horizontal'],
+    ['x1', 'x1', 'vertical'],
+  ]) {
+    const session = new Session(mode, { sets: 1 });
+    finishSet(session);
+    session.skipRest();
+    assert.equal(session.index, 1);
+    assert.equal(session.current.exercise, exercise);
+    assert.equal(session.current.direction, direction);
+    assert.equal(session.phase, 'instruction');
+    assert.equal(session.remaining, 5);
+    assert.equal(session.completedSets, 1);
+    assert.equal(session.activeSeconds, 30);
+    session.advance(4);
+    assert.equal(session.phase, 'instruction');
+    session.advance(1);
+    assert.equal(session.phase, 'work');
+    assert.equal(session.remaining, 30);
+    assert.equal(session.activeSeconds, 30);
+  }
+});
+
+test('skip break does nothing during paused rest or any non-rest phase', () => {
+  const session = new Session('x1');
+  function assertSkipHasNoEffect() {
+    const before = structuredClone({ ...session });
+    session.skipRest();
+    assert.deepEqual({ ...session }, before);
+  }
+  assertSkipHasNoEffect(); // Initial instructions.
+  reachWork(session);
+  session.advance(5);
+  assertSkipHasNoEffect(); // Active exercise.
+  session.pause();
+  assertSkipHasNoEffect();
+  session.resume();
+  assertSkipHasNoEffect(); // Resume countdown.
+  session.advance(3);
+  session.advance(25);
+  session.pause();
+  assert.equal(session.phase, 'rest');
+  assertSkipHasNoEffect(); // A paused break stays paused.
+  session.resume();
+  session.advance(session.remaining);
+  assert.equal(session.phase, 'recovery');
+  assertSkipHasNoEffect(); // Existing ready-to-continue action owns recovery.
+  session.continueAfterRest();
+  assert.equal(session.phase, 'ready');
+  assertSkipHasNoEffect();
+  while (session.phase !== 'complete') {
+    finishSet(session);
+    if (session.phase === 'rest') {
+      session.advance(session.remaining);
+      session.continueAfterRest();
+    }
+  }
+  assertSkipHasNoEffect();
 });
 
 test('exercise and direction changes each get exactly five seconds of instructions before work', () => {

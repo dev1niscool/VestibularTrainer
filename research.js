@@ -23,7 +23,7 @@ export const researchHTML = `
   <section class="research-section">
     <h3>How these sessions are arranged</h3>
     <p>The default is two 30-second sets in each direction, with 30-second breaks. X1 or X2 alone contains 2 minutes of active practice; Combined contains 4 minutes. These are adjustable sample settings, not a clinically validated protocol. Rest and instruction time are not active practice.</p>
-    <p>Breaks can be extended by 30 seconds. The timer finishing does not mean you are ready: let symptoms settle, then choose to continue. A shorter session may be appropriate; follow your clinician’s advice.</p>
+    <p>Breaks can be extended by 30 seconds, or skipped when you are ready. Let symptoms settle before continuing, even if the timer has finished. A shorter session may be appropriate; follow your clinician’s advice.</p>
   </section>
 
   <section class="research-section">
