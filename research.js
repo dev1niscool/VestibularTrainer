@@ -22,7 +22,7 @@ export const researchHTML = `
 
   <section class="research-section">
     <h3>How these sessions are arranged</h3>
-    <p>The default is two 30-second sets in each direction, with 30-second breaks. X1 or X2 alone contains 2 minutes of active practice; Combined contains 4 minutes. These are adjustable sample settings, not a clinically validated protocol. Rest and instruction time are not active practice.</p>
+    <p>The default is two 30-second sets in each direction, with 10-second breaks. X1 or X2 alone contains 2 minutes of active practice; Combined contains 4 minutes. These are adjustable sample settings, not a clinically validated protocol. Rest and instruction time are not active practice.</p>
     <p>The next set starts automatically after each break. Use Pause or +30 seconds if you need more time, or Skip break when ready. Let symptoms settle before exercising again.</p>
   </section>
 

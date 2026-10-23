@@ -43,7 +43,7 @@ function showSetup(selected = mode) {
       <div class="settings-grid">
         <div class="field"><label for="duration">Time per set</label><select id="duration" name="duration">${optionList([15, 30, 45, 60], settings.duration, ' seconds')}</select></div>
         <div class="field"><label for="sets">Sets per direction${mode === 'combined' ? ', per type' : ''}</label><select id="sets" name="sets">${optionList([1, 2, 3, 4], settings.sets)}</select></div>
-        <div class="field"><label for="rest">Rest between sets</label><select id="rest" name="rest">${optionList([15, 30, 45, 60], settings.rest, ' seconds')}</select></div>
+        <div class="field"><label for="rest">Rest between sets</label><select id="rest" name="rest">${optionList([10, 15, 30, 45, 60], settings.rest, ' seconds')}</select></div>
         <div class="field"><label for="size">Target size</label><select id="size" name="size">${[36,48,64].map((v,i)=>`<option value="${v}" ${v === settings.size ? 'selected' : ''}>${['Small','Medium','Large'][i]}</option>`).join('')}</select></div>
       </div>
       <button class="primary-button start-button" type="submit">Begin session <span aria-hidden="true">→</span></button>

@@ -101,10 +101,11 @@ test('rest can be extended and automatically starts the next set countdown when 
   finishSet(session);
   assert.equal(session.completedSets, 1);
   assert.equal(session.phase, 'rest');
-  session.advance(10);
+  assert.equal(session.remaining, 10);
+  session.advance(5);
   session.extendRest();
-  assert.equal(session.remaining, 50);
-  session.advance(49);
+  assert.equal(session.remaining, 35);
+  session.advance(34);
   assert.equal(session.phase, 'rest');
   assert.equal(session.remaining, 1);
   assert.equal(session.index, 0);
@@ -144,7 +145,7 @@ test('skipping a break starts the next repeated set countdown without skipping e
   finishSet(session);
   session.advance(7);
   session.extendRest();
-  assert.equal(session.remaining, 53);
+  assert.equal(session.remaining, 33);
   session.skipRest();
   assert.equal(session.index, 1);
   assert.equal(session.current.repetition, 2);
@@ -231,7 +232,11 @@ test('exercise and direction changes each get exactly five seconds of instructio
   ]) {
     const session = new Session(mode, { sets: 1 });
     finishSet(session);
-    session.advance(session.settings.rest);
+    assert.equal(session.settings.rest, 10);
+    session.advance(9);
+    assert.equal(session.phase, 'rest');
+    assert.equal(session.remaining, 1);
+    session.advance(1);
     assert.equal(session.current.exercise, exercise);
     assert.equal(session.current.direction, direction);
     assert.equal(session.phase, 'instruction');

@@ -1,5 +1,5 @@
-export const DEFAULTS = Object.freeze({ duration: 30, sets: 2, rest: 30, cycle: 2, travel: 90, size: 48 });
-const allowed = { duration: [15, 30, 45, 60], sets: [1, 2, 3, 4], rest: [15, 30, 45, 60], cycle: [1, 1.5, 2, 3, 4, 6, 8], travel: [30, 60, 90, 100], size: [36, 48, 64] };
+export const DEFAULTS = Object.freeze({ duration: 30, sets: 2, rest: 10, cycle: 2, travel: 90, size: 48 });
+const allowed = { duration: [15, 30, 45, 60], sets: [1, 2, 3, 4], rest: [10, 15, 30, 45, 60], cycle: [1, 1.5, 2, 3, 4, 6, 8], travel: [30, 60, 90, 100], size: [36, 48, 64] };
 
 export function normalizeSettings(input = {}) {
   return Object.fromEntries(Object.entries(DEFAULTS).map(([key, fallback]) => [key, allowed[key].includes(Number(input[key])) ? Number(input[key]) : fallback]));

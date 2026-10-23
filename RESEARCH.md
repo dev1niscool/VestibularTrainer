@@ -23,7 +23,7 @@ These are daily practice totals, not set lengths. The guideline does not establi
 
 ## Why the app uses sample settings
 
-The initial settings are **30 seconds per set, two sets per direction, and 30 seconds of rest**. A standalone X1 or X2 sequence has four sets and 2 minutes of active time. Combined has eight sets and 4 minutes of active time. Instruction and rest time are excluded from these active totals.
+The initial settings are **30 seconds per set, two sets per direction, and 10 seconds of rest**. A standalone X1 or X2 sequence has four sets and 2 minutes of active time. Combined has eight sets and 4 minutes of active time. Instruction and rest time are excluded from these active totals.
 
 This arrangement is an adjustable product example, not a regimen established by the guideline or a trial. The interface does not call Combined a universally recommended session or infer that everyone should repeat it a certain number of times daily. A user’s clinician may recommend shorter or longer bouts, a different frequency, only X1, or an entirely different program.
 
