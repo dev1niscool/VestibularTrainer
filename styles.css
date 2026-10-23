@@ -122,7 +122,8 @@ main { flex: 1; width: 100%; }
 .phase-copy strong { color: var(--ink); font-weight: 500; }
 .preparation-note { font-size: 11px; line-height: 1.75; color: #78816f; margin: 17px auto 20px; max-width: 400px; }
 .completion-note { font-size: 10px; color: var(--muted); margin: 22px 0 0; }
-.paused-card .primary-button, .paused-card .button-row { margin-top: 25px; }
+.paused-card > .primary-button, .paused-card > .button-row { margin-top: 25px; }
+.paused-card .button-row { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); width: min(100%, 360px); margin-inline: auto; }
 .keyboard-hint { font-size: 9px; color: #7c8674; }
 .countdown { font-family: var(--display-font); font-size: 77px; line-height: 1; color: var(--green); margin: 23px 0 9px; font-variant-numeric: tabular-nums; }
 .countdown-label { color: #7e8876; font-size: 10px; line-height: 1.6; }
@@ -235,6 +236,10 @@ main { flex: 1; width: 100%; }
   .dialog-intro { font-size: 12px; }
   .research-section p, .research-section li { font-size: 11px; }
 }
+@media (max-width: 360px) {
+  .paused-card .button-row { grid-template-columns: 1fr; }
+}
+
 /* Give vertical X2 the available screen height while keeping controls outside its path. */
 body.x2-vertical-active { height: 100vh; height: 100dvh; min-height: 320px; }
 .x2-vertical-active main { display: flex; min-height: 0; }
