@@ -5,39 +5,30 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#ffffff">
   <meta name="description" content="A quiet, guided timer for clinician-directed VOR X1 and VOR X2 gaze stabilization exercises, with adjustable sessions and linked research.">
-  <title>Vestibular — A little more steady.</title>
+  <title>Vestibular</title>
   <link rel="icon" href="./favicon.svg" type="image/svg+xml">
+  <link rel="preload" href="./assets/fonts/instrument-serif.ttf" as="font" type="font/ttf" crossorigin>
   <link rel="stylesheet" href="./styles.css">
   <script type="module" src="./app.js"></script>
 </head>
 <body>
   <a class="skip-link" href="#main">Skip to content</a>
-  <header class="site-header">
-    <a class="wordmark" href="./" aria-label="Vestibular home"><span class="brand-symbol" aria-hidden="true"><i></i></span>vestibular<span class="wordmark-period">.</span></a>
-    <span class="header-note">A MOMENT FOR YOUR BALANCE</span>
-    <button class="text-button header-info" data-action="info">About this practice <span class="diagonal-arrow" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M6 18 18 6M6 6h12v12"/></svg></span></button>
-  </header>
   <main id="main" tabindex="-1">
     <section id="home-view" class="home-view" aria-labelledby="home-title">
-      <div class="hero-copy"><span class="eyebrow"><span class="status-dot"></span> GAZE STABILIZATION, SIMPLIFIED</span>
-        <h1 id="home-title">A little more <em>steady.</em></h1>
-        <p>A quiet space to practice keeping your world in focus.<br class="desktop-break"> Choose an exercise. We’ll guide you through the rest.</p>
+      <div class="hero-copy">
+        <h1 id="home-title"><a class="wordmark" href="./" aria-label="Vestibular home"><span class="brand-symbol" aria-hidden="true"><i></i></span>vestibular<span class="wordmark-period">.</span></a></h1>
+        <p>Choose an exercise.</p>
       </div>
-      <div class="practice-card">
-        <div class="card-heading"><div><span class="eyebrow">YOUR PRACTICE</span><h2>Where would you like to begin?</h2></div><span class="card-symbol" aria-hidden="true"><svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M20 4v32M4 20h32M9 9l22 22M9 31 31 9"/></svg></span></div>
-        <div class="mode-list">
-          <button class="mode-option" data-mode="x1"><span class="mode-icon static-icon" aria-hidden="true"><i></i></span><span class="mode-copy"><span class="mode-title">VOR X1 <span class="mode-tag">STATIONARY TARGET</span></span><span class="mode-description">Move your head. Keep the target in focus.</span></span><span class="mode-arrow" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M6 18 18 6M6 6h12v12"/></svg></span></button>
-          <button class="mode-option" data-mode="x2"><span class="mode-icon moving-icon" aria-hidden="true"><span>←</span><i></i><span>→</span></span><span class="mode-copy"><span class="mode-title">VOR X2 <span class="mode-tag">MOVING TARGET</span></span><span class="mode-description">Move your head opposite to the target.</span></span><span class="mode-arrow" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M6 18 18 6M6 6h12v12"/></svg></span></button>
-          <button class="mode-option combined-option" data-mode="combined"><span class="mode-icon combined-icon" aria-hidden="true"><i></i><i></i></span><span class="mode-copy"><span class="mode-title">Combined session <span class="mode-tag">X1 + X2</span></span><span class="mode-description">Both exercises, with time to rest in between.</span></span><span class="mode-arrow" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M6 18 18 6M6 6h12v12"/></svg></span></button>
-        </div>
-        <div class="card-footnote"><span class="small-ring" aria-hidden="true"></span> Follow your clinician’s plan. X2 is a progression, not a starting point.</div>
+      <div class="mode-list" aria-label="Exercises">
+        <button class="mode-option" data-mode="x1"><span class="mode-title">VOR X1</span><span class="mode-arrow" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M6 18 18 6M6 6h12v12"/></svg></span></button>
+        <button class="mode-option" data-mode="x2"><span class="mode-title">VOR X2</span><span class="mode-arrow" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M6 18 18 6M6 6h12v12"/></svg></span></button>
+        <button class="mode-option" data-mode="combined"><span class="mode-title">Combined session</span><span class="mode-arrow" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M6 18 18 6M6 6h12v12"/></svg></span></button>
       </div>
-      <div class="practice-meta"><span><svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="7"/><path d="M10 6v4l3 2"/></svg>At your own pace</span><span class="meta-dot">·</span><span>Horizontal &amp; vertical</span><span class="meta-dot">·</span><span>Space to pause</span></div>
     </section>
     <section id="setup-view" class="setup-view" hidden aria-labelledby="setup-title"></section>
     <section id="session-view" class="session-view" hidden aria-labelledby="session-title"></section>
   </main>
-  <footer class="site-footer"><button class="info-button" data-action="info"><span class="info-symbol" aria-hidden="true">i</span> Research &amp; safety</button><p>For education and clinician-directed practice. Not medical advice.</p><span class="footer-detail">ONE FOCUS. ONE MOMENT.</span></footer>
+  <footer class="site-footer"><button class="info-button" data-action="info"><span class="info-symbol" aria-hidden="true">i</span> Research &amp; safety</button><p>For education and clinician-directed practice. Not medical advice.</p></footer>
   <dialog id="info-dialog" aria-labelledby="info-title">
     <div class="dialog-top"><span class="eyebrow">THE THINKING BEHIND THE PRACTICE</span><button class="icon-button" data-action="close-info" aria-label="Close research and safety">×</button></div>
     <h2 id="info-title">Research &amp; safety</h2>

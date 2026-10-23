@@ -94,7 +94,7 @@ function instructions(set) {
 }
 function startSession() {
   session = new Session(mode, settings); renderedKey = ''; endRequested = false;
-  views.session.innerHTML = `<div class="session-top"><div class="session-label"><span class="eyebrow">YOUR PRACTICE</span><h1 id="session-title">${labels[mode]}</h1></div><div class="session-actions"><button class="text-button" data-action="fullscreen" id="fullscreen-button">Expand view</button><button class="text-button" data-action="end">End session ×</button></div></div><div class="session-progress" role="progressbar" aria-label="Exercise time completed" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span></span></div><div class="session-stage" id="session-stage"></div><div id="session-bottom" class="session-bottom"></div><div id="session-controls" class="session-controls"></div>`;
+  views.session.innerHTML = `<div class="session-top"><div class="session-label"><h1 id="session-title">${labels[mode]}</h1></div><div class="session-actions"><button class="text-button" data-action="fullscreen" id="fullscreen-button">Expand view</button><button class="text-button" data-action="end">End session ×</button></div></div><div class="session-progress" role="progressbar" aria-label="Exercise time completed" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span></span></div><div class="session-stage" id="session-stage"></div><div id="session-bottom" class="session-bottom"></div><div id="session-controls" class="session-controls"></div>`;
   renderSession(); showView('session'); lastTime = performance.now(); frame = requestAnimationFrame(tick);
 }
 function stopLoop() { cancelAnimationFrame(frame); frame = 0; }

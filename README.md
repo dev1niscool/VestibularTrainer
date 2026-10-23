@@ -2,7 +2,7 @@
 
 A quiet, browser-based guide for clinician-directed VOR X1 and VOR X2 gaze stabilization practice.
 
-**GitHub Pages URL (once hosting is enabled):** https://dev1niscool.github.io/VestibularTrainer/
+**Live site:** https://dev1niscool.github.io/VestibularTrainer/
 
 ## What it does
 
@@ -20,7 +20,7 @@ The app does not measure head movement, verify technique, diagnose dizziness, or
 
 ## Local development
 
-No packages, build tool, account, backend, analytics, or external assets are required.
+No packages, build tool, account, backend, analytics, or external runtime requests are required. Instrument Serif and Geist are served locally from `assets/fonts/`, with their SIL Open Font License files included. Instrument Serif is the display face used by both TrumpRx and David; Geist matches TrumpRx’s supporting typography.
 
 ```sh
 npm start
@@ -38,6 +38,6 @@ npm test
 
 ## Publishing
 
-The GitHub Actions workflow checks syntax and session behavior, then publishes only the seven static site files to GitHub Pages on pushes to `main`. Set the repository’s Pages build source to **GitHub Actions** in [Settings → Pages](https://github.com/dev1niscool/VestibularTrainer/settings/pages). This one-time setup needs repository administration access. If a run happened before Pages was enabled, rerun it from [Actions](https://github.com/dev1niscool/VestibularTrainer/actions/workflows/pages.yml). No API keys or secrets are needed.
+The GitHub Actions workflow checks syntax and session behavior, then publishes the static site files and locally hosted fonts to GitHub Pages on pushes to `main`. Set the repository’s Pages build source to **GitHub Actions** in [Settings → Pages](https://github.com/dev1niscool/VestibularTrainer/settings/pages). This one-time setup needs repository administration access. If a run happened before Pages was enabled, rerun it from [Actions](https://github.com/dev1niscool/VestibularTrainer/actions/workflows/pages.yml). No API keys or secrets are needed.
 
 Exercise target movement is intentional and remains active when the device requests reduced motion; decorative animation is removed. Users explicitly choose and begin a moving-target exercise and can pause or stop at any time.
