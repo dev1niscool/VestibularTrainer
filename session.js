@@ -56,11 +56,10 @@ export class Session {
   skipRest() { this.advanceToNextSet(); }
   advanceToNextSet() {
     if (this.phase !== 'rest' || this.paused || !this.next) return;
-    const previous = this.current;
     this.index++;
-    const changed = previous.exercise !== this.current.exercise || previous.direction !== this.current.direction;
-    this.phase = changed ? 'instruction' : 'ready';
-    this.remaining = 5;
+    this.phase = 'work';
+    this.remaining = this.current.duration;
+    this.workElapsed = 0;
   }
   advance(seconds) {
     if (this.paused || this.phase === 'complete' || !Number.isFinite(seconds) || seconds <= 0) return;
@@ -73,7 +72,7 @@ export class Session {
     if (this.remaining <= 0) this.transition();
   }
   transition() {
-    if (this.phase === 'instruction' || this.phase === 'ready' || this.phase === 'resume') {
+    if (this.phase === 'instruction' || this.phase === 'resume') {
       const resuming = this.phase === 'resume';
       this.phase = 'work';
       this.remaining = resuming ? this.resumeRemaining : this.current.duration;

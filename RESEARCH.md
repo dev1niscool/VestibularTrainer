@@ -27,7 +27,7 @@ The initial settings are **30 seconds per set, two sets per direction, and 10 se
 
 This arrangement is an adjustable product example, not a regimen established by the guideline or a trial. The interface does not call Combined a universally recommended session or infer that everyone should repeat it a certain number of times daily. A user’s clinician may recommend shorter or longer bouts, a different frequency, only X1, or an entirely different program.
 
-Rest can be extended in 30-second increments, ended early with “Skip break”, or paused. When the countdown finishes, the next set’s five-second preparation starts automatically. Skipping a break starts the same preparation without counting the skipped rest as exercise. The countdown is not an assessment of readiness: users can pause or add time until symptoms settle. Brief instructions appear for five seconds before the first set and each change of movement. Direction cues remain visible during exercise, and the research panel holds the full setup and safety guidance.
+Rest can be extended in 30-second increments, ended early with “Skip break”, or paused. Instructions for the upcoming set appear during the selected break countdown, including changes of exercise type and direction. When the break finishes or is skipped, the next set starts immediately, without another preparation countdown or counting the break as exercise. The countdown is not an assessment of readiness: users can pause or add time until symptoms settle. Brief instructions appear for five seconds before the first set. Direction cues remain visible during exercise, and the research panel holds the full setup and safety guidance.
 
 ## Mechanics, target, and viewing distance
 

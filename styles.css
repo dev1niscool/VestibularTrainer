@@ -121,7 +121,6 @@ main { flex: 1; width: 100%; }
 .phase-copy { font-size: 13px; line-height: 1.85; color: var(--muted); max-width: 450px; margin: 0 auto; }
 .phase-copy strong { color: var(--ink); font-weight: 500; }
 .preparation-note { font-size: 11px; line-height: 1.75; color: #78816f; margin: 17px auto 20px; max-width: 400px; }
-.up-next { color: #7c8872; font-size: 9px; margin: 21px 0 0; line-height: 1.75; }
 .completion-note { font-size: 10px; color: var(--muted); margin: 22px 0 0; }
 .paused-card .primary-button, .paused-card .button-row { margin-top: 25px; }
 .keyboard-hint { font-size: 9px; color: #7c8674; }

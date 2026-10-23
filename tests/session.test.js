@@ -3,8 +3,7 @@ import assert from 'node:assert/strict';
 import { DEFAULTS, Session, createPlan, normalizeSettings, formatTime } from '../session.js';
 
 function reachWork(session) {
-  assert.ok(['instruction', 'ready'].includes(session.phase));
-  session.advance(5);
+  if (session.phase === 'instruction') session.advance(5);
   assert.equal(session.phase, 'work');
 }
 
@@ -96,7 +95,7 @@ test('pausing freezes all exercise clocks and resuming gives a separate three-se
   assert.equal(session.activeSeconds, 10);
 });
 
-test('rest can be extended and automatically starts the next set countdown when it finishes', () => {
+test('extended rest starts the next repeated set directly without counting rest as exercise', () => {
   const session = new Session('x1');
   finishSet(session);
   assert.equal(session.completedSets, 1);
@@ -112,12 +111,6 @@ test('rest can be extended and automatically starts the next set countdown when 
   assert.equal(session.activeSeconds, 30);
   session.advance(1);
   assert.equal(session.index, 1);
-  assert.equal(session.phase, 'ready');
-  assert.equal(session.remaining, 5);
-  session.advance(4);
-  assert.equal(session.phase, 'ready');
-  assert.equal(session.activeSeconds, 30);
-  session.advance(1);
   assert.equal(session.phase, 'work');
   assert.equal(session.remaining, 30);
   assert.equal(session.activeSeconds, 30);
@@ -134,13 +127,14 @@ test('pausing a rest preserves the chosen rest duration', () => {
   session.resume();
   assert.equal(session.phase, 'rest');
   session.advance(43);
-  assert.equal(session.phase, 'ready');
+  assert.equal(session.phase, 'work');
   assert.equal(session.index, 1);
-  assert.equal(session.remaining, 5);
+  assert.equal(session.remaining, 30);
+  assert.equal(session.workElapsed, 0);
   assert.equal(session.activeSeconds, 30);
 });
 
-test('skipping a break starts the next repeated set countdown without skipping exercise time', () => {
+test('skipping a break starts the next repeated set directly without skipping exercise time', () => {
   const session = new Session('x1');
   finishSet(session);
   session.advance(7);
@@ -150,15 +144,12 @@ test('skipping a break starts the next repeated set countdown without skipping e
   assert.equal(session.index, 1);
   assert.equal(session.current.repetition, 2);
   assert.equal(session.current.direction, 'horizontal');
-  assert.equal(session.phase, 'ready');
-  assert.equal(session.remaining, 5);
+  assert.equal(session.phase, 'work');
+  assert.equal(session.remaining, 30);
   assert.equal(session.completedSets, 1);
   assert.equal(session.activeSeconds, 30);
   session.skipRest();
   assert.equal(session.index, 1, 'a second skip must not skip the next exercise');
-  assert.equal(session.phase, 'ready');
-  assert.equal(session.remaining, 5);
-  session.advance(5);
   assert.equal(session.phase, 'work');
   assert.equal(session.remaining, 30);
   assert.equal(session.workElapsed, 0);
@@ -168,7 +159,7 @@ test('skipping a break starts the next repeated set countdown without skipping e
   assert.equal(session.activeSeconds, 60);
 });
 
-test('skipping a break retains five-second instructions when exercise or direction changes', () => {
+test('skipping a break starts changed exercises or directions immediately with a full set', () => {
   for (const [mode, exercise, direction] of [
     ['combined', 'x2', 'horizontal'],
     ['x1', 'x1', 'vertical'],
@@ -179,15 +170,10 @@ test('skipping a break retains five-second instructions when exercise or directi
     assert.equal(session.index, 1);
     assert.equal(session.current.exercise, exercise);
     assert.equal(session.current.direction, direction);
-    assert.equal(session.phase, 'instruction');
-    assert.equal(session.remaining, 5);
-    assert.equal(session.completedSets, 1);
-    assert.equal(session.activeSeconds, 30);
-    session.advance(4);
-    assert.equal(session.phase, 'instruction');
-    session.advance(1);
     assert.equal(session.phase, 'work');
     assert.equal(session.remaining, 30);
+    assert.equal(session.workElapsed, 0);
+    assert.equal(session.completedSets, 1);
     assert.equal(session.activeSeconds, 30);
   }
 });
@@ -214,7 +200,7 @@ test('skip break does nothing during paused rest or any non-rest phase', () => {
   assertSkipHasNoEffect(); // A paused break stays paused.
   session.resume();
   session.advance(session.remaining);
-  assert.equal(session.phase, 'ready');
+  assert.equal(session.phase, 'work');
   assertSkipHasNoEffect();
   while (session.phase !== 'complete') {
     finishSet(session);
@@ -225,30 +211,30 @@ test('skip break does nothing during paused rest or any non-rest phase', () => {
   assertSkipHasNoEffect();
 });
 
-test('exercise and direction changes each get exactly five seconds of instructions before work', () => {
-  for (const [mode, exercise, direction] of [
-    ['combined', 'x2', 'horizontal'],
-    ['x1', 'x1', 'vertical'],
-  ]) {
-    const session = new Session(mode, { sets: 1 });
-    finishSet(session);
-    assert.equal(session.settings.rest, 10);
-    session.advance(9);
-    assert.equal(session.phase, 'rest');
-    assert.equal(session.remaining, 1);
-    session.advance(1);
-    assert.equal(session.current.exercise, exercise);
-    assert.equal(session.current.direction, direction);
-    assert.equal(session.phase, 'instruction');
-    assert.equal(session.remaining, 5);
-    session.advance(4);
-    assert.equal(session.phase, 'instruction');
-    assert.equal(session.activeSeconds, 30);
-    session.advance(1);
-    assert.equal(session.phase, 'work');
-    assert.equal(session.remaining, 30);
-    assert.equal(session.activeSeconds, 30);
-    assert.equal(session.workElapsed, 0);
+test('selected rest is the only interval before an exercise or direction change', () => {
+  for (const rest of [10, 15, 30, 45, 60]) {
+    for (const [mode, exercise, direction] of [
+      ['combined', 'x2', 'horizontal'],
+      ['x1', 'x1', 'vertical'],
+    ]) {
+      const session = new Session(mode, { sets: 1, rest });
+      finishSet(session);
+      assert.equal(session.remaining, rest);
+      session.advance(rest - 1);
+      assert.equal(session.phase, 'rest');
+      assert.equal(session.remaining, 1);
+      assert.equal(session.index, 0);
+      session.advance(1);
+      assert.equal(session.current.exercise, exercise);
+      assert.equal(session.current.direction, direction);
+      assert.equal(session.phase, 'work');
+      assert.equal(session.remaining, 30);
+      assert.equal(session.activeSeconds, 30);
+      assert.equal(session.workElapsed, 0);
+      session.advance(1);
+      assert.equal(session.remaining, 29);
+      assert.equal(session.activeSeconds, 31);
+    }
   }
 });
 
@@ -263,9 +249,9 @@ test('a huge time step cannot silently run through multiple sets', () => {
   assert.equal(session.activeSeconds, 30);
   assert.equal(session.completedSets, 1);
   session.advance(9999);
-  assert.equal(session.phase, 'ready');
+  assert.equal(session.phase, 'work');
   assert.equal(session.index, 1);
-  assert.equal(session.remaining, 5);
+  assert.equal(session.remaining, 30);
   assert.equal(session.activeSeconds, 30);
   assert.equal(session.completedSets, 1);
 });
