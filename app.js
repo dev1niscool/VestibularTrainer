@@ -23,6 +23,7 @@ function focusHeading(view) {
 function showView(view) {
   for (const [key, element] of Object.entries(views)) element.hidden = key !== view;
   document.body.classList.toggle('session-active', view === 'session');
+  if (view !== 'session') document.body.classList.remove('x2-vertical-active');
   window.scrollTo({ top: 0, behavior: 'instant' });
   focusHeading(view);
 }
@@ -100,6 +101,7 @@ function renderSession() {
     const wasWithinStage = $('#session-stage').contains(document.activeElement);
     const focusedAction = $('#session-controls').contains(document.activeElement) ? document.activeElement.dataset.action : null;
     renderedKey = key;
+    document.body.classList.toggle('x2-vertical-active', session.phase === 'work' && !session.paused && !endRequested && session.current.exercise === 'x2' && session.current.direction === 'vertical');
     $('#session-stage').innerHTML = phaseMarkup();
     $('#session-stage').className = `session-stage phase-${session.phase}${session.paused ? ' is-paused' : ''}`;
     const complete = session.phase === 'complete';

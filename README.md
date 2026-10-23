@@ -7,7 +7,7 @@ A quiet, browser-based guide for clinician-directed VOR X1 and VOR X2 gaze stabi
 ## What it does
 
 - VOR X1: a stationary letter target with horizontal and vertical head-movement instructions.
-- VOR X2: a smoothly moving letter target, with instructions to move the head in the opposite direction. The default completes a back-and-forth in 2 seconds across 90% of the available target range; the horizontal track expands with the screen. Speed and range remain adjustable.
+- VOR X2: a smoothly moving letter target, with instructions to move the head in the opposite direction. The default completes a back-and-forth in 2 seconds across 90% of the available target range. The horizontal track spans the screen width; the vertical track fills the available screen height between compact controls, increasing its travel distance and speed. Speed and range remain adjustable.
 - Combined session: both exercise types, horizontal first, then vertical.
 - Adjustable set duration, repetitions, rest, target size, and X2 display speed/travel.
 - A compact settings screen with no confirmation checkbox; X2 target controls are available under a collapsed section.
