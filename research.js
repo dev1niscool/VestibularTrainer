@@ -23,7 +23,7 @@ export const researchHTML = `
   <section class="research-section">
     <h3>How these sessions are arranged</h3>
     <p>The default is two 30-second sets in each direction, with 30-second breaks. X1 or X2 alone contains 2 minutes of active practice; Combined contains 4 minutes. These are adjustable sample settings, not a clinically validated protocol. Rest and instruction time are not active practice.</p>
-    <p>Breaks can be extended by 30 seconds, or skipped when you are ready. Let symptoms settle before continuing, even if the timer has finished. A shorter session may be appropriate; follow your clinician’s advice.</p>
+    <p>The next set starts automatically after each break. Use Pause or +30 seconds if you need more time, or Skip break when ready. Let symptoms settle before exercising again.</p>
   </section>
 
   <section class="research-section">
@@ -34,7 +34,7 @@ export const researchHTML = `
       <li>Sit in a stable chair with the screen at eye level, about 3 feet / 1 metre away, or at your prescribed distance. The ANPT instruction card uses a target a few feet away.</li>
       <li>Use a comfortable range of motion. Slow down if the letter blurs. Following the moving target with only your eyes is not VOR training.</li>
     </ul>
-    <p>The moving target is a visual aid. Its travel and speed are screen-based settings, not calibrated head angles or clinical velocity measurements. This website does not track your head, eyes, viewing distance, symptoms, or exercise technique. A completed timer does not verify that an exercise was performed correctly.</p>
+    <p>The moving target is a visual aid. Its default is a 2-second back-and-forth across 90% of the available range, adjustable in settings. Travel scales with the exercise area and screen. These are display settings, not calibrated head angles or prescribed clinical velocities. This website does not track your head, eyes, viewing distance, symptoms, or exercise technique. A completed timer does not verify that an exercise was performed correctly.</p>
   </section>
 
   <section class="research-section">

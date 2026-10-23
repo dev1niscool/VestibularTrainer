@@ -7,15 +7,15 @@ A quiet, browser-based guide for clinician-directed VOR X1 and VOR X2 gaze stabi
 ## What it does
 
 - VOR X1: a stationary letter target with horizontal and vertical head-movement instructions.
-- VOR X2: a smoothly moving letter target, with instructions to move the head in the opposite direction.
+- VOR X2: a smoothly moving letter target, with instructions to move the head in the opposite direction. The default completes a back-and-forth in 2 seconds across 90% of the available target range; the horizontal track expands with the screen. Speed and range remain adjustable.
 - Combined session: both exercise types, horizontal first, then vertical.
 - Adjustable set duration, repetitions, rest, target size, and X2 display speed/travel.
 - A compact settings screen with no confirmation checkbox; X2 target controls are available under a collapsed section.
-- Five-second instructions before the first set and each movement change, clear head-direction cues during exercise, extendable or skippable rest, and an explicit readiness check between sets.
+- Five-second instructions before the first set and each movement change, clear head-direction cues during exercise, extendable or skippable rest, and automatic progression after each break.
 - Pause/resume, a three-second countdown when resuming an active set, automatic pause when the tab is hidden or the browser stalls, session completion, restart, and return home.
 - Keyboard operation, responsive layouts, reduced decorative motion, linked research, and safety information.
 
-The default is **two 30-second sets per direction per exercise type**, with a 30-second rest timer between sets. Breaks can be extended or skipped when ready. That is 2 minutes of active practice for either standalone exercise, or 4 minutes for a combined session. These are **illustrative settings, not an established clinical prescription**. The app does not recommend X2 or a combined program for everyone. See [RESEARCH.md](RESEARCH.md) for the evidence and its limitations.
+The default is **two 30-second sets per direction per exercise type**, with a 30-second rest timer between sets. Breaks continue automatically and can be extended, skipped, or paused. That is 2 minutes of active practice for either standalone exercise, or 4 minutes for a combined session. These are **illustrative settings, not an established clinical prescription**. The app does not recommend X2 or a combined program for everyone. See [RESEARCH.md](RESEARCH.md) for the evidence and its limitations.
 
 The app does not measure head movement, verify technique, diagnose dizziness, or replace a vestibular clinician. A screen-pixel target trajectory is not a calibrated physical or angular motion. This is an educational aid and is not medical advice.
 

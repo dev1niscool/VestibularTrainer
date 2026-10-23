@@ -47,7 +47,7 @@ function showSetup(selected = mode) {
         <div class="field"><label for="size">Target size</label><select id="size" name="size">${[36,48,64].map((v,i)=>`<option value="${v}" ${v === settings.size ? 'selected' : ''}>${['Small','Medium','Large'][i]}</option>`).join('')}</select></div>
       </div>
       <button class="primary-button start-button" type="submit">Begin session <span aria-hidden="true">→</span></button>
-      ${includesX2 ? `<details class="advanced-settings"><summary>Moving target settings</summary><div class="settings-grid"><div class="field"><label for="cycle">One full back-and-forth</label><select id="cycle" name="cycle">${optionList([3,4,6,8], settings.cycle, ' seconds')}</select></div><div class="field"><label for="travel">Travel from centre</label><select id="travel" name="travel">${optionList([30,60,90], settings.travel, ' screen pixels')}</select></div></div></details>` : ''}
+      ${includesX2 ? `<details class="advanced-settings"><summary>Moving target settings</summary><div class="settings-grid"><div class="field"><label for="cycle">One full back-and-forth</label><select id="cycle" name="cycle">${optionList([1,1.5,2,3,4,6,8], settings.cycle, ' seconds')}</select></div><div class="field"><label for="travel">Travel range</label><select id="travel" name="travel">${optionList([30,60,90,100], settings.travel, '%')}</select></div></div></details>` : ''}
     </form>`;
   showView('setup');
   $('#setup-form').addEventListener('change', readSettings);
@@ -74,7 +74,7 @@ function tick(now) {
   if (!session) return;
   const elapsed = Math.max(0, (now - lastTime) / 1000); lastTime = now;
   // A sleeping device or a stalled browser must never silently finish a set.
-  if (elapsed > 2 && !['complete', 'recovery'].includes(session.phase)) {
+  if (elapsed > 2 && session.phase !== 'complete') {
     session.pause(); announce('Session paused after an interruption. Resume when ready.');
   } else session.advance(elapsed);
   renderSession(); updateTarget();
@@ -88,8 +88,8 @@ function phaseMarkup() {
   if (session.paused) return `<div class="phase-content paused-card"><span class="phase-icon" aria-hidden="true">∥</span><span class="phase-eyebrow">NO RUSH</span><h2>Take a moment.</h2><p class="phase-copy">Your session is paused. Continue only when you’re comfortable and symptoms have settled.</p><button class="primary-button" data-action="pause">Resume session →</button></div>`;
   if (session.phase === 'instruction') return `<div class="phase-content"><span class="phase-icon" aria-hidden="true">${set.direction === 'horizontal' ? '↔' : '↕'}</span><span class="phase-eyebrow">${session.index > 0 ? 'UP NEXT' : 'LET’S BEGIN'} · ${labels[set.exercise]} · ${set.direction.toUpperCase()}</span><h2>${axis}.</h2><p class="phase-copy">${instructions(set)}</p><p class="preparation-note">Screen at eye level · about 3 feet (1 metre) away.</p><span class="countdown-label">Starting in <span data-timer></span>s</span></div>`;
   if (session.phase === 'ready' || session.phase === 'resume') return `<div class="phase-content"><span class="phase-eyebrow">${session.phase === 'resume' ? 'EASE BACK IN' : `${labels[set.exercise]} · ${set.direction.toUpperCase()}`}</span><h2 class="ready-title">Find your focus.</h2><div class="countdown" data-timer></div><p class="phase-copy">${set.exercise === 'x1' ? 'Eyes on the E. Your head moves; the target stays still.' : 'Eyes on the E. Your head moves opposite to the target.'}</p></div>`;
-  if (session.phase === 'work') return `<div class="target-field" aria-label="Exercise target"><div class="gaze-target" id="gaze-target" style="--target-size:${settings.size}px"><span>E</span></div></div>`;
-  if (session.phase === 'rest' || session.phase === 'recovery') return `<div class="phase-content rest-card"><span class="phase-icon rest-icon" aria-hidden="true">⌁</span><span class="phase-eyebrow">SET ${session.completedSets} COMPLETE</span><h2>A little breathing room.</h2><p class="phase-copy">Let your head and eyes rest. Wait for symptoms to settle.</p>${session.phase === 'rest' ? '<div class="countdown" data-timer></div><span class="countdown-label">seconds of rest · take longer if you need</span><div class="rest-actions"><button class="secondary-button" data-action="extend">+ 30 seconds</button><button class="primary-button" data-action="skip-break">Skip break →</button></div>' : '<p class="recovery-ready">The timer is done. There’s no rush.</p><button class="primary-button" data-action="continue">I’m ready to continue →</button>'}<p class="up-next">Next: ${labels[next.exercise]} · ${next.direction}${next.direction !== set.direction ? ' · Now moving up and down' : ''}</p></div>`;
+  if (session.phase === 'work') return `<div class="target-field${set.exercise === 'x2' ? ' x2-target-field' : ''}" aria-label="Exercise target"><div class="gaze-target" id="gaze-target" style="--target-size:${settings.size}px"><span>E</span></div></div>`;
+  if (session.phase === 'rest') return `<div class="phase-content rest-card"><span class="phase-icon rest-icon" aria-hidden="true">⌁</span><span class="phase-eyebrow">SET ${session.completedSets} COMPLETE</span><h2>A little breathing room.</h2><p class="phase-copy">Rest your head and eyes.</p><div class="countdown" data-timer></div><span class="countdown-label">seconds · next set starts automatically</span><div class="rest-actions"><button class="secondary-button" data-action="extend">+ 30 seconds</button><button class="primary-button" data-action="skip-break">Skip break →</button></div><p class="up-next">Next: ${labels[next.exercise]} · ${next.direction}${next.direction !== set.direction ? ' · Now moving up and down' : ''}</p></div>`;
   return `<div class="phase-content completion-card"><span class="phase-icon completion-icon" aria-hidden="true">✓</span><span class="phase-eyebrow">SESSION COMPLETE</span><h2>A moment well spent.</h2><p class="phase-copy">Your practice is complete. Take a moment before getting up.</p><div class="completion-stats"><div><strong>${formatTime(session.activeSeconds)}</strong><span>active practice</span></div><div><strong>${session.completedSets}</strong><span>sets completed</span></div></div><div class="button-row"><button class="primary-button" data-action="home">Return home →</button><button class="secondary-button" data-action="again">Try again</button></div><p class="completion-note">Repeat only as directed by your clinician.</p></div>`;
 }
 
@@ -106,12 +106,12 @@ function renderSession() {
     $('#session-bottom').hidden = complete || endRequested || ['instruction', 'ready'].includes(session.phase);
     $('#session-controls').hidden = complete || endRequested;
     $('.session-actions').hidden = complete;
-    const resting = session.paused || ['rest', 'recovery'].includes(session.phase);
+    const resting = session.paused || session.phase === 'rest';
     const cue = resting ? 'Rest your head and eyes' : `Move your head ${session.current.direction === 'horizontal' ? 'side to side' : 'up and down'}`;
-    const cueDetail = resting ? 'Continue when symptoms settle.' : session.current.exercise === 'x1' ? 'Keep your eyes on the E.' : 'Move opposite to the target. Keep the E clear.';
+    const cueDetail = resting ? 'Pause or add time if you need a longer break.' : session.current.exercise === 'x1' ? 'Keep your eyes on the E.' : 'Move opposite to the target. Keep the E clear.';
     $('#session-bottom').innerHTML = `<div class="session-instruction"><span class="eyebrow">${labels[session.current.exercise]} · ${session.current.direction.toUpperCase()} · SET ${session.index + 1} OF ${session.plan.length}</span><strong id="movement-cue">${cue}</strong><p>${cueDetail}</p></div><div class="session-timer"><span class="time" id="work-time"></span><span class="time-label">${session.phase === 'work' || session.phase === 'resume' ? 'left in this set' : 'per set'}</span></div>`;
-    $('#session-controls').innerHTML = `<button class="secondary-button pause-button" data-action="pause" ${session.phase === 'recovery' ? 'hidden' : ''}>${session.paused ? 'Resume session' : 'Pause session'}</button><span class="keyboard-hint">Space to pause · Esc to stop</span>`;
-    const message = session.paused ? 'Session paused.' : session.phase === 'work' ? `${labels[session.current.exercise]}, ${session.current.direction}. Start set ${session.index + 1}. ${instructions(session.current)}` : session.phase === 'rest' ? 'Set complete. Rest until symptoms settle.' : session.phase === 'recovery' ? 'Rest timer complete. Continue when ready.' : complete ? 'Session complete.' : `${session.phase === 'instruction' ? 'Next exercise' : 'Get ready'}: ${labels[session.current.exercise]}, ${session.current.direction}.`;
+    $('#session-controls').innerHTML = `<button class="secondary-button pause-button" data-action="pause">${session.paused ? 'Resume session' : 'Pause session'}</button><span class="keyboard-hint">Space to pause · Esc to stop</span>`;
+    const message = session.paused ? 'Session paused.' : session.phase === 'work' ? `${labels[session.current.exercise]}, ${session.current.direction}. Start set ${session.index + 1}. ${instructions(session.current)}` : session.phase === 'rest' ? 'Set complete. Rest. The next set will start automatically.' : complete ? 'Session complete.' : `${session.phase === 'instruction' ? 'Next exercise' : 'Get ready'}: ${labels[session.current.exercise]}, ${session.current.direction}.`;
     announce(message);
     if (wasWithinStage || complete) {
       const focusTarget = $('#session-stage').querySelector('h2, button');
@@ -136,13 +136,13 @@ function updateTarget() {
   if (session.current.exercise === 'x2') {
     const field = $('.target-field');
     const available = (session.current.direction === 'horizontal' ? field.clientWidth : field.clientHeight) / 2 - settings.size / 2 - 16;
-    const amplitude = Math.max(0, Math.min(settings.travel, available));
+    const amplitude = Math.max(0, available) * settings.travel / 100;
     offset = Math.sin(session.workElapsed * Math.PI * 2 / settings.cycle) * amplitude;
   }
   target.style.transform = `translate(calc(-50% + ${session.current.direction === 'horizontal' ? offset : 0}px), calc(-50% + ${session.current.direction === 'vertical' ? offset : 0}px))`;
 }
 function pauseToggle() {
-  if (!session || session.phase === 'complete' || (session.phase === 'recovery' && !session.paused) || endRequested) return;
+  if (!session || session.phase === 'complete' || endRequested) return;
   session.paused ? session.resume() : session.pause();
   lastTime = performance.now(); renderSession();
 }
@@ -187,7 +187,6 @@ document.addEventListener('click', async (event) => {
   if (action === 'pause') pauseToggle();
   if (action === 'extend' && session) { session.extendRest(); renderSession(); announce('Added 30 seconds of rest.'); }
   if (action === 'skip-break' && session) { session.skipRest(); lastTime = performance.now(); renderSession(); }
-  if (action === 'continue' && session) { session.continueAfterRest(); lastTime = performance.now(); renderSession(); }
   if (action === 'end' && session) requestEnd();
   if (action === 'cancel-end') { endRequested = false; renderSession(); }
   if (action === 'fullscreen') {

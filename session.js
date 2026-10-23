@@ -1,5 +1,5 @@
-export const DEFAULTS = Object.freeze({ duration: 30, sets: 2, rest: 30, cycle: 4, travel: 60, size: 48 });
-const allowed = { duration: [15, 30, 45, 60], sets: [1, 2, 3, 4], rest: [15, 30, 45, 60], cycle: [3, 4, 6, 8], travel: [30, 60, 90], size: [36, 48, 64] };
+export const DEFAULTS = Object.freeze({ duration: 30, sets: 2, rest: 30, cycle: 2, travel: 90, size: 48 });
+const allowed = { duration: [15, 30, 45, 60], sets: [1, 2, 3, 4], rest: [15, 30, 45, 60], cycle: [1, 1.5, 2, 3, 4, 6, 8], travel: [30, 60, 90, 100], size: [36, 48, 64] };
 
 export function normalizeSettings(input = {}) {
   return Object.fromEntries(Object.entries(DEFAULTS).map(([key, fallback]) => [key, allowed[key].includes(Number(input[key])) ? Number(input[key]) : fallback]));
@@ -53,23 +53,17 @@ export class Session {
     }
   }
   extendRest() { if (this.phase === 'rest') this.remaining += 30; }
-  skipRest() {
-    if (this.phase !== 'rest' || this.paused) return;
-    this.phase = 'recovery';
-    this.remaining = 0;
-    this.continueAfterRest();
-  }
-  continueAfterRest() {
-    if (this.phase !== 'recovery') return;
+  skipRest() { this.advanceToNextSet(); }
+  advanceToNextSet() {
+    if (this.phase !== 'rest' || this.paused || !this.next) return;
     const previous = this.current;
     this.index++;
     const changed = previous.exercise !== this.current.exercise || previous.direction !== this.current.direction;
     this.phase = changed ? 'instruction' : 'ready';
     this.remaining = 5;
-    this.paused = false;
   }
   advance(seconds) {
-    if (this.paused || ['complete', 'recovery'].includes(this.phase) || !Number.isFinite(seconds) || seconds <= 0) return;
+    if (this.paused || this.phase === 'complete' || !Number.isFinite(seconds) || seconds <= 0) return;
     const elapsed = Math.min(seconds, this.remaining);
     if (this.phase === 'work') {
       this.activeSeconds += elapsed;
@@ -91,8 +85,7 @@ export class Session {
       if (!this.next) { this.phase = 'complete'; this.remaining = 0; }
       else { this.phase = 'rest'; this.remaining = this.settings.rest; }
     } else if (this.phase === 'rest') {
-      this.phase = 'recovery';
-      this.remaining = 0;
+      this.advanceToNextSet();
     }
   }
 }

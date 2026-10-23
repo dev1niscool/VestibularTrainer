@@ -39,6 +39,21 @@ test('form strings are accepted and unsupported settings cannot create invalid t
   assert.throws(() => createPlan('unknown'), /Unknown practice mode/);
 });
 
+test('moving-target settings support faster cycles and proportional full-track travel', () => {
+  const session = new Session('x2');
+  assert.equal(session.settings.cycle, 2);
+  assert.equal(session.settings.travel, 90);
+  for (const cycle of [1, 1.5, 2, 3, 4, 6, 8]) {
+    assert.equal(normalizeSettings({ cycle: String(cycle) }).cycle, cycle);
+  }
+  for (const travel of [30, 60, 90, 100]) {
+    assert.equal(normalizeSettings({ travel: String(travel) }).travel, travel);
+  }
+  const invalid = normalizeSettings({ cycle: 0.5, travel: 120 });
+  assert.equal(invalid.cycle, 2);
+  assert.equal(invalid.travel, 90);
+});
+
 test('five seconds of initial instructions lead directly to work without counting as active practice', () => {
   const session = new Session('x1');
   assert.equal(session.remaining, 5);
@@ -81,7 +96,7 @@ test('pausing freezes all exercise clocks and resuming gives a separate three-se
   assert.equal(session.activeSeconds, 10);
 });
 
-test('rest can be extended and never automatically starts the next set', () => {
+test('rest can be extended and automatically starts the next set countdown when it finishes', () => {
   const session = new Session('x1');
   finishSet(session);
   assert.equal(session.completedSets, 1);
@@ -89,15 +104,12 @@ test('rest can be extended and never automatically starts the next set', () => {
   session.advance(10);
   session.extendRest();
   assert.equal(session.remaining, 50);
-  session.continueAfterRest();
-  assert.equal(session.phase, 'rest', 'continue waits for the rest timer to finish');
-  session.advance(50);
-  assert.equal(session.phase, 'recovery');
-  session.advance(3600);
-  assert.equal(session.phase, 'recovery');
+  session.advance(49);
+  assert.equal(session.phase, 'rest');
+  assert.equal(session.remaining, 1);
   assert.equal(session.index, 0);
   assert.equal(session.activeSeconds, 30);
-  session.continueAfterRest();
+  session.advance(1);
   assert.equal(session.index, 1);
   assert.equal(session.phase, 'ready');
   assert.equal(session.remaining, 5);
@@ -121,7 +133,9 @@ test('pausing a rest preserves the chosen rest duration', () => {
   session.resume();
   assert.equal(session.phase, 'rest');
   session.advance(43);
-  assert.equal(session.phase, 'recovery');
+  assert.equal(session.phase, 'ready');
+  assert.equal(session.index, 1);
+  assert.equal(session.remaining, 5);
   assert.equal(session.activeSeconds, 30);
 });
 
@@ -139,6 +153,10 @@ test('skipping a break starts the next repeated set countdown without skipping e
   assert.equal(session.remaining, 5);
   assert.equal(session.completedSets, 1);
   assert.equal(session.activeSeconds, 30);
+  session.skipRest();
+  assert.equal(session.index, 1, 'a second skip must not skip the next exercise');
+  assert.equal(session.phase, 'ready');
+  assert.equal(session.remaining, 5);
   session.advance(5);
   assert.equal(session.phase, 'work');
   assert.equal(session.remaining, 30);
@@ -195,16 +213,12 @@ test('skip break does nothing during paused rest or any non-rest phase', () => {
   assertSkipHasNoEffect(); // A paused break stays paused.
   session.resume();
   session.advance(session.remaining);
-  assert.equal(session.phase, 'recovery');
-  assertSkipHasNoEffect(); // Existing ready-to-continue action owns recovery.
-  session.continueAfterRest();
   assert.equal(session.phase, 'ready');
   assertSkipHasNoEffect();
   while (session.phase !== 'complete') {
     finishSet(session);
     if (session.phase === 'rest') {
       session.advance(session.remaining);
-      session.continueAfterRest();
     }
   }
   assertSkipHasNoEffect();
@@ -218,7 +232,6 @@ test('exercise and direction changes each get exactly five seconds of instructio
     const session = new Session(mode, { sets: 1 });
     finishSet(session);
     session.advance(session.settings.rest);
-    session.continueAfterRest();
     assert.equal(session.current.exercise, exercise);
     assert.equal(session.current.direction, direction);
     assert.equal(session.phase, 'instruction');
@@ -244,6 +257,12 @@ test('a huge time step cannot silently run through multiple sets', () => {
   assert.equal(session.phase, 'rest');
   assert.equal(session.activeSeconds, 30);
   assert.equal(session.completedSets, 1);
+  session.advance(9999);
+  assert.equal(session.phase, 'ready');
+  assert.equal(session.index, 1);
+  assert.equal(session.remaining, 5);
+  assert.equal(session.activeSeconds, 30);
+  assert.equal(session.completedSets, 1);
 });
 
 test('invalid elapsed time is ignored', () => {
@@ -258,8 +277,7 @@ test('completion records exactly the prescribed active time despite fractional a
   const session = new Session('combined');
   let frames = 0;
   while (session.phase !== 'complete') {
-    if (session.phase === 'recovery') session.continueAfterRest();
-    else session.advance(1 / 60);
+    session.advance(1 / 60);
     assert.ok(++frames < 100_000, 'session must finish');
   }
   assert.equal(session.completedSets, 8);
@@ -267,7 +285,7 @@ test('completion records exactly the prescribed active time despite fractional a
   assert.equal(session.progress, 1);
   assert.equal(formatTime(session.activeSeconds), '4:00');
   session.advance(100);
-  session.continueAfterRest();
+  session.skipRest();
   session.pause();
   assert.equal(session.phase, 'complete');
   assert.equal(session.paused, false);
